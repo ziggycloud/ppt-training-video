@@ -147,7 +147,7 @@ def make_plan(
             "时长只是目标，事实不足时宁可更短并写入warnings，不得填充虚构内容。"
             "开场仅第一页使用，结尾仅最后一页使用。fact_refs必须引用实际使用的事实。"
             "医学资料中的条件、禁忌与单位必须保留，存在冲突时明确说明需核对。\n"
-            f"用户侧重点：{focus or cfg.course.focus or '按资料顺序说明重点；双资料以后者为中心介绍区别。'}\n"
+            f"用户侧重点：{focus or '按资料顺序说明重点；双资料以后者为中心介绍区别。'}\n"
             f"补充要求：{cfg.course.extra_instructions}\n"
             f"全课目录：{json.dumps(directory, ensure_ascii=False)}\n"
             f"当前页主题：{page.title}\n已提供事实：{json.dumps(facts, ensure_ascii=False)}\n"

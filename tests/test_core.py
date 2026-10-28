@@ -123,3 +123,11 @@ def test_packaged_template_matches_root():
     assert files("ppt_trainer").joinpath("config.example.yaml").read_text(encoding="utf-8") == (
         root / "config.example.yaml"
     ).read_text(encoding="utf-8")
+
+
+def test_explicit_empty_focus_does_not_restore_yaml_focus(cfg, image, fake_client):
+    cfg.course.focus = "THIS_YAML_FOCUS_MUST_NOT_BE_RESTORED"
+    deck = Deck("sample.pptx", "sample", [Slide(1, str(image), "演示参数", "", file_hash(image))])
+    plan = make_plan(deck, None, cfg, fake_client, "", lambda _: None)
+    assert plan.focus == ""
+    assert all("THIS_YAML_FOCUS" not in r.content.decode() for r in fake_client.test_calls)

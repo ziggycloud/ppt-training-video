@@ -1,0 +1,29 @@
+name: tests
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.4"
+          enable-cache: true
+      - name: Install Python
+        run: uv python install 3.12
+      - name: Linux dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libreoffice-impress fonts-noto-cjk
+      - name: Windows LibreOffice
+        if: runner.os == 'Windows'
+        run: choco install libreoffice-fresh -y --no-progress
+      - run: uv sync --locked
+      - run: uv run pytest -q

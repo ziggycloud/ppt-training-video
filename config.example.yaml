@@ -1,0 +1,66 @@
+# Copy with: uv run ppt-trainer init --config config.yaml
+# config.yaml is gitignored. Never commit an actual API key.
+bailian:
+  api_key: "" # Fill here, or set DASHSCOPE_API_KEY (environment takes precedence).
+  # OpenAI-compatible root; do NOT append /chat/completions.
+  chat_base_url: "https://YOUR_WORKSPACE_ID.cn-beijing.maas.aliyuncs.com/compatible-mode/v1"
+  # Native DashScope root; do NOT append /services/... . Used for TTS.
+  native_base_url: "https://YOUR_WORKSPACE_ID.cn-beijing.maas.aliyuncs.com/api/v1"
+  timeout_seconds: 180
+  retries: 2
+  model: "qwen3.7-plus-2026-05-26" # Text + images. May use qwen3.7-plus if snapshot unavailable.
+  temperature: 0.2
+  max_output_tokens: 8000
+
+course:
+  target_minutes: 20 # Narration planning target, NOT a promise of exact final length.
+  characters_per_minute: 220
+  audience: "规培学员"
+  language: "中文普通话"
+  max_slides: 100
+  max_file_mb: 100
+  comparison_candidates: 5
+  focus: "" # Two PPTs: default explains changes centered on the SECOND PPT.
+  extra_instructions: "只讲资料明确支持的内容；医学规培资料不得自行补充诊疗建议或剂量。"
+
+tts:
+  model: "cosyvoice-v3-flash"
+  voice: "longanyang" # Must belong to this model. May replace with a compatible cloned voice_id.
+  rate: 1.0
+  sample_rate: 24000
+  max_chars_per_request: 42 # Short utterances = measured sentence-level subtitles, no guessed word timing.
+  pause_after_slide_seconds: 0.5
+  # Same native HTTP protocol also supports compatible Qwen-Audio-TTS models; change voice too.
+
+video:
+  width: 1920
+  height: 1080
+  fps: 25
+  crf: 23
+  preset: "veryfast"
+  threads: 2
+  background: "#eef2f8"
+
+avatar:
+  mode: "cartoon" # cartoon | loop | none
+  video_path: "" # Required for loop; local MP4/MOV/AVI. Original audio is discarded.
+  side: "right" # right | left
+  width_fraction: 0.22
+  coat_color: "#516bd4"
+  skin_color: "#f4ccb1"
+  silence_threshold: 0.012
+
+subtitles:
+  enabled: true
+  font_path: "" # Optional full font path. Auto-detects Windows YaHei / Linux Noto CJK.
+  font_size: 38 # At configured output resolution; lower for 720p.
+  max_chars_per_line: 22
+  max_lines: 2
+  color: "#ffffff"
+
+tools:
+  libreoffice: "" # Empty = auto-discover soffice. On Windows may use C:/Program Files/LibreOffice/program/soffice.exe
+  ffmpeg: "" # Empty = imageio-ffmpeg bundled binary, then PATH.
+  conversion_timeout_seconds: 180
+
+cache_dir: ".ppt-trainer" # Relative paths resolve relative to config.yaml.

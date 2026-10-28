@@ -131,3 +131,34 @@ def test_explicit_empty_focus_does_not_restore_yaml_focus(cfg, image, fake_clien
     plan = make_plan(deck, None, cfg, fake_client, "", lambda _: None)
     assert plan.focus == ""
     assert all("THIS_YAML_FOCUS" not in r.content.decode() for r in fake_client.test_calls)
+
+
+def test_windows_console_launcher_preferred(tmp_path):
+    from ppt_trainer.tools import libreoffice
+
+    exe = tmp_path / "soffice.exe"
+    com = tmp_path / "soffice.com"
+    exe.write_bytes(b"fixture")
+    com.write_bytes(b"fixture")
+    assert libreoffice(str(exe)) == str(com.resolve())
+
+
+def test_office_profile_is_not_nested_in_cache(tmp_path, cfg, monkeypatch):
+    from ppt_trainer import deck as module
+    from urllib.parse import urlsplit, unquote
+
+    source = tmp_path / "source.pptx"
+    source.write_bytes(b"test")
+    dest = tmp_path / "deep" / ("x" * 64) / "pdf"
+    captured = []
+    monkeypatch.setattr(module, "libreoffice", lambda _: "soffice")
+
+    def fake_run(command, **kwargs):
+        captured.extend(command)
+        (dest / "source.pdf").write_bytes(b"fixture")
+        return "converted"
+
+    monkeypatch.setattr(module, "run", fake_run)
+    module.convert(source, dest, "pdf", cfg)
+    profile = next(x.split("=", 1)[1] for x in captured if x.startswith("-env:UserInstallation="))
+    assert "deep" not in unquote(urlsplit(profile).path)

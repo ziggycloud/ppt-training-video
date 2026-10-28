@@ -128,11 +128,13 @@ def extract_ooxml(path: Path, max_slides: int) -> list[tuple[str, str]]:
 
 def convert(source: Path, dest: Path, extension: str, cfg: Settings) -> Path:
     dest.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix="lo-", dir=dest.parent) as profile:
+    # LibreOffice expands many nested files inside its profile. Keeping it under
+    # an already-deep hashed cache can exceed Windows path limits.
+    with tempfile.TemporaryDirectory(prefix="ppttrain-lo-") as profile:
         fmt = extension
         if extension == "pdf":
             fmt = 'pdf:impress_pdf_Export:{"ExportHiddenSlides":{"type":"boolean","value":"true"}}'
-        run(
+        diagnostics = run(
             [
                 libreoffice(cfg.tools.libreoffice),
                 f"-env:UserInstallation={Path(profile).as_uri()}",
@@ -149,6 +151,7 @@ def convert(source: Path, dest: Path, extension: str, cfg: Settings) -> Path:
     if not output.is_file():
         raise TrainerError(
             f"LibreOffice 未生成 {extension} 文件。请检查课件是否可正常打开，或是否存在密码/不支持对象。"
+            f" 转换诊断：{diagnostics[-1200:]}"
         )
     return output
 

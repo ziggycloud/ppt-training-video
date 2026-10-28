@@ -24,6 +24,8 @@ outputs/
 *.avi
 *.srt
 *.ass
+*.plan.json
+*.manifest.json
 *.log
 *.egg-info/
 dist/

@@ -19,7 +19,13 @@ def libreoffice(configured: str = "") -> str:
     candidates.append("/Applications/LibreOffice.app/Contents/MacOS/soffice")
     for candidate in candidates:
         if candidate and Path(candidate).is_file():
-            return str(Path(candidate).resolve())
+            executable = Path(candidate)
+            # Windows' console launcher waits for conversion and exposes diagnostics.
+            # The GUI .exe can return before its child has finished.
+            console = executable.with_suffix(".com")
+            if executable.suffix.lower() == ".exe" and console.is_file():
+                executable = console
+            return str(executable.resolve())
     raise TrainerError(
         "找不到 LibreOffice。请安装后将 tools.libreoffice 指向 soffice.exe / soffice。"
     )
